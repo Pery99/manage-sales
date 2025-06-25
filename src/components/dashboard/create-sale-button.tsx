@@ -10,7 +10,7 @@ export default function CreateSaleButton() {
 
   return (
     <>
-      <Button onClick={() => setIsDialogOpen(true)}>
+      <Button onClick={() => setIsDialogOpen(true)} className="w-full md:w-auto">
         <PlusCircle className="mr-2 h-4 w-4" />
         Create Sale Link
       </Button>

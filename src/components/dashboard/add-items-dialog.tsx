@@ -76,23 +76,25 @@ export default function AddItemsDialog({ open, onOpenChange }: AddItemsDialogPro
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
                 <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
                     {fields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-[1fr_120px_auto] items-start gap-4">
-                            <FormField control={form.control} name={`items.${index}.name`} render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className={index !== 0 ? 'sr-only' : ''}>Item Name</FormLabel>
-                                    <FormControl><Input placeholder="E.g., T-Shirt" {...field} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name={`items.${index}.price`} render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className={index !== 0 ? 'sr-only' : ''}>Price (NGN)</FormLabel>
-                                    <FormControl><Input type="number" placeholder="1000" {...field} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <Button type="button" variant="ghost" size="icon" className="mt-8" onClick={() => remove(index)} disabled={fields.length <= 1}>
-                                <Trash2 className="h-4 w-4" />
+                        <div key={field.id} className="flex flex-col md:flex-row md:items-start gap-4 border-b pb-4 last:border-b-0 md:border-none md:pb-0">
+                            <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField control={form.control} name={`items.${index}.name`} render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Item Name</FormLabel>
+                                        <FormControl><Input placeholder="E.g., T-Shirt" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name={`items.${index}.price`} render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Price (NGN)</FormLabel>
+                                        <FormControl><Input type="number" placeholder="1000" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                            <Button type="button" variant="ghost" size="icon" className="self-center md:self-start md:mt-8" onClick={() => remove(index)} disabled={fields.length <= 1}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
                                 <span className="sr-only">Remove Item</span>
                             </Button>
                         </div>

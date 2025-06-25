@@ -26,10 +26,10 @@ export default function OrderTable({ data }: OrderTableProps) {
           <TableRow>
             <TableHead>Order ID</TableHead>
             <TableHead>Customer</TableHead>
-            <TableHead>Location</TableHead>
+            <TableHead className="hidden md:table-cell">Location</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Tracking Link</TableHead>
+            <TableHead className="hidden lg:table-cell">Date</TableHead>
+            <TableHead className="hidden sm:table-cell">Tracking</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -41,20 +41,20 @@ export default function OrderTable({ data }: OrderTableProps) {
                    <Link href={`/dashboard/order/${order.id}`} className="hover:underline" target="_blank">{order.id.substring(0, 8)}...</Link>
                 </TableCell>
                 <TableCell>{order.customerName || 'N/A'}</TableCell>
-                <TableCell>{order.deliveryState || 'N/A'}</TableCell>
+                <TableCell className="hidden md:table-cell">{order.deliveryState || 'N/A'}</TableCell>
                 <TableCell>
                   <OrderStatusBadge status={order.status} />
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden lg:table-cell">
                   {new Date(order.createdAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                     {order.status !== 'Created' && order.trackingId ? (
                         <Link href={`/track/${order.trackingId}`} className="text-primary hover:underline flex items-center gap-1" target="_blank">
                             View
                             <Copy className="h-3 w-3" />
                         </Link>
-                    ) : 'Not available'}
+                    ) : 'N/A'}
                 </TableCell>
                 <TableCell className="text-right">
                   <OrderActions order={order} />

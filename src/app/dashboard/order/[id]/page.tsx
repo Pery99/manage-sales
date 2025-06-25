@@ -9,9 +9,9 @@ import { ShoppingCart } from 'lucide-react';
 function DetailRow({ label, value }: { label: string; value: string | React.ReactNode }) {
     if (!value) return null;
     return (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-4">
             <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-            <dd className="mt-1 text-sm text-foreground col-span-2 sm:mt-0">{value}</dd>
+            <dd className="mt-1 text-sm text-foreground sm:col-span-2 sm:mt-0">{value}</dd>
         </div>
     )
 }
@@ -35,7 +35,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
     <div className="container mx-auto py-10 flex justify-center">
       <Card className="w-full max-w-4xl">
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-start">
             <div>
               <CardTitle className="font-headline text-2xl">Order Details</CardTitle>
               <CardDescription>

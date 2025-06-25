@@ -45,11 +45,10 @@ export default function OnboardingPage() {
     if (!user) return;
 
     startTransition(() => {
-        updateUserProfileAction(user.uid, values).catch(err => {
-            console.error(err);
-            // In a real app, you would set an error state to display to the user
-            alert('Failed to update profile. Please try again.');
-        });
+        // The redirect in the server action will be handled correctly by Next.js
+        // without needing a .catch() block which can misinterpret the redirect
+        // error as a regular exception.
+        updateUserProfileAction(user.uid, values);
     });
   };
 
