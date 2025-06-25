@@ -70,7 +70,7 @@ export default function AddItemsDialog({ open, onOpenChange }: AddItemsDialogPro
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>Create New Sale</DialogTitle>
-          <DialogDescription>Add the items for this sale. The customer will see this list before paying.</DialogDescription>
+          <DialogDescription>Add the items for this sale</DialogDescription>
         </DialogHeader>
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
