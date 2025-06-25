@@ -93,17 +93,6 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
                     </div>
                 </>
             )}
-
-            <Separator className="my-4" />
-
-             <div className="mt-6">
-                <h3 className="text-lg font-medium">Payment Receipt</h3>
-                <div className="mt-2 flex items-center justify-center border-2 border-dashed rounded-lg p-12 text-center bg-muted/50">
-                    <p className="text-sm text-muted-foreground">
-                        Payment receipt uploads are not yet implemented.
-                    </p>
-                </div>
-            </div>
         </CardContent>
       </Card>
     </div>

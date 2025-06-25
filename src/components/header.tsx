@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Package2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
@@ -24,8 +23,7 @@ export default function Header() {
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
-            <Package2 className="h-6 w-6 text-primary" />
-            <span className="font-headline">LinkSale</span>
+            <span className="font-headline text-xl">LinkSale</span>
           </Link>
         </div>
         <nav className="flex-1 items-center space-x-4 hidden md:flex">

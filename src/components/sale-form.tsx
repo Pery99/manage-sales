@@ -122,13 +122,6 @@ export default function SaleForm({ orderId }: SaleFormProps) {
             </FormItem>
           )}
         />
-        <div className="grid gap-2">
-            <FormLabel htmlFor="receipt">Proof of Payment</FormLabel>
-            <Input id="receipt" type="file" />
-            <p className="text-sm text-muted-foreground">
-              Please upload a screenshot or photo of your payment receipt. (Note: File uploads are not yet functional in this prototype).
-            </p>
-        </div>
         <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           {isPending ? 'Submitting...' : 'Submit Order'}

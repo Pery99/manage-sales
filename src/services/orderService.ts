@@ -29,7 +29,6 @@ const fromFirestore = (doc: any): Order => {
     customerPhone: data.customerPhone,
     deliveryAddress: data.deliveryAddress,
     deliveryState: data.deliveryState,
-    paymentReceiptUrl: data.paymentReceiptUrl,
     status: data.status,
     createdAt: createdAt,
     updatedAt: updatedAt,
