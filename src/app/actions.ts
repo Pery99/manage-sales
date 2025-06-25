@@ -7,9 +7,9 @@ import { createOrder, updateOrder, getOrder, updateOrderStatus } from '@/service
 import type { OrderStatus } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function createSaleAction() {
+export async function createSaleAction(ownerId: string) {
   const newOrder = await createOrder({
-    ownerId: 'user1', // In a real app, this would come from the authenticated user
+    ownerId,
     status: 'Created',
   });
 

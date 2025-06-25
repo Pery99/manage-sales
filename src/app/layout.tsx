@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import Header from '@/components/header';
+import { AuthProvider } from '@/contexts/auth-context';
 
 export const metadata: Metadata = {
   title: 'LinkSale',
@@ -29,8 +30,10 @@ export default function RootLayout({
           'flex flex-col'
         )}
       >
-        <Header />
-        <main className="flex-grow">{children}</main>
+        <AuthProvider>
+          <Header />
+          <main className="flex-grow">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

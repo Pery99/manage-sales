@@ -1,6 +1,13 @@
-import { getOrdersByOwner } from '@/services/orderService';
+'use client';
+
+import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Order } from '@/types';
+import { useAuth } from '@/contexts/auth-context';
+import { getOrdersByOwner } from '@/services/orderService';
 import { format } from 'date-fns';
+import { Loader2 } from 'lucide-react';
+
 import MonthlyOrderAccordion from '@/components/dashboard/monthly-order-accordion';
 import CreateSaleButton from '@/components/dashboard/create-sale-button';
 
@@ -20,10 +27,40 @@ const groupOrdersByMonth = (orders: Order[]): Record<string, Order[]> => {
   }, {} as Record<string, Order[]>);
 };
 
-export default async function DashboardPage() {
-  // In a real app, ownerId would come from the authenticated user session
-  const orders = await getOrdersByOwner('user1');
-  const ordersByMonth = groupOrdersByMonth(orders);
+export default function DashboardPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (user) {
+      setIsLoadingOrders(true);
+      getOrdersByOwner(user.uid)
+        .then(setOrders)
+        .finally(() => setIsLoadingOrders(false));
+    }
+  }, [user]);
+
+  const ordersByMonth = useMemo(() => groupOrdersByMonth(orders), [orders]);
+
+  if (authLoading || isLoadingOrders) {
+    return (
+      <div className="flex items-center justify-center h-screen-minus-header">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return null; // or a redirect component
+  }
 
   return (
     <div className="container mx-auto py-10">

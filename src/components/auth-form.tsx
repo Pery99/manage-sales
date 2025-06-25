@@ -1,78 +1,75 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { signInWithGoogle } from '@/services/authService';
+import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
-type AuthFormMode = 'login' | 'signup';
+const GoogleIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M21.35 11.1h-9.2v2.7h5.2c-.2 1.8-1.5 3-3.2 3-2.1 0-3.8-1.7-3.8-3.8s1.7-3.8 3.8-3.8c1.1 0 2.1.5 2.8 1.2l2.1-2.1C17.4 6.7 15.3 5.5 13 5.5c-4.1 0-7.5 3.4-7.5 7.5s3.4 7.5 7.5 7.5c4.3 0 7.2-3 7.2-7.1 0-.6-.1-1.1-.2-1.6z"/>
+    </svg>
+);
 
-interface AuthFormProps {
-  mode: AuthFormMode;
-}
-
-export default function AuthForm({ mode }: AuthFormProps) {
+export default function AuthForm() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const isLogin = mode === 'login';
-  const title = isLogin ? 'Welcome Back' : 'Create an Account';
-  const description = isLogin
-    ? 'Enter your credentials to access your dashboard.'
-    : 'Sign up to start managing your sales.';
-  const buttonText = isLogin ? 'Login' : 'Sign Up';
-  const footerText = isLogin ? "Don't have an account?" : 'Already have an account?';
-  const footerLink = isLogin ? '/signup' : '/login';
-  const footerLinkText = isLogin ? 'Sign Up' : 'Login';
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real app, you would handle form submission to your backend here.
-    // For this prototype, we'll just navigate to the dashboard.
-    router.push('/dashboard');
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const user = await signInWithGoogle();
+      if (user) {
+        router.push('/dashboard');
+      } else {
+        throw new Error('Sign in failed. Please try again.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2xl font-headline">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-2xl font-headline">Welcome to LinkSale</CardTitle>
+        <CardDescription>Sign in or create an account to continue</CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="m@example.com" required />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required />
-          </div>
-          {!isLogin && (
-             <div className="grid gap-2">
-                <Label htmlFor="confirm-password">Confirm Password</Label>
-                <Input id="confirm-password" type="password" required />
-            </div>
+      <CardContent className="grid gap-4">
+        {error && (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Authentication Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
+        )}
+        <Button 
+            className="w-full" 
+            variant="outline"
+            onClick={handleGoogleSignIn} 
+            disabled={isLoading}>
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <GoogleIcon />
           )}
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full">{buttonText}</Button>
-          <div className="mt-4 text-center text-sm">
-            {footerText}{' '}
-            <Link href={footerLink} className="underline">
-              {footerLinkText}
-            </Link>
-          </div>
-        </CardFooter>
-      </form>
+          {isLoading ? 'Redirecting...' : 'Continue with Google'}
+        </Button>
+      </CardContent>
     </Card>
   );
 }

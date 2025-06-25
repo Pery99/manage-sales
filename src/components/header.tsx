@@ -4,32 +4,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Package2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-
-// Mock auth hook for demonstration purposes
-const useAuth = () => {
-  const [user, setUser] = useState<{ name: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // In a real app, you'd check for a token or session here.
-    // We'll simulate this with a timeout.
-    const timer = setTimeout(() => {
-        // To test both states, you can manually change this condition
-        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dashboard')) {
-            setUser({ name: 'Business Owner' });
-        } else {
-            setUser(null);
-        }
-        setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return { user, loading, logout: () => setUser(null) };
-};
+import { useAuth } from '@/contexts/auth-context';
 
 export default function Header() {
   const pathname = usePathname();
@@ -38,6 +14,11 @@ export default function Header() {
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard' },
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    // No need to redirect here, the auth state change will handle it
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -63,8 +44,8 @@ export default function Header() {
              <div className="w-24 h-8 bg-muted rounded-md animate-pulse"></div>
           ) : user ? (
             <>
-              <span className="text-sm text-muted-foreground hidden sm:inline">Welcome, {user.name}</span>
-              <Button variant="outline" onClick={logout} asChild>
+              <span className="text-sm text-muted-foreground hidden sm:inline">Welcome, {user.displayName || user.email}</span>
+              <Button variant="outline" onClick={handleLogout} asChild>
                 <Link href="/">Logout</Link>
               </Button>
             </>
