@@ -5,7 +5,7 @@ import Header from './header';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const noHeaderPaths = ['/sale/', '/track/'];
+  const noHeaderPaths = ['/sale/', '/track/', '/onboarding'];
   const showHeader = !noHeaderPaths.some(path => pathname.startsWith(path));
 
   return (

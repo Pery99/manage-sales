@@ -1,5 +1,6 @@
 import OrderTracker from '@/components/order-tracker';
 import { getOrderByTrackingId } from '@/services/orderService';
+import { getUserProfile } from '@/services/userService';
 import {
   Card,
   CardContent,
@@ -41,10 +42,13 @@ export default async function TrackPage({ params, searchParams }: { params: { id
     );
   }
 
+  const businessProfile = await getUserProfile(order.ownerId);
+
   return (
     <div className="container mx-auto py-10 flex justify-center">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
+          <p className="text-sm text-muted-foreground">{businessProfile?.businessName || 'Your Seller'}</p>
           <CardTitle className="font-headline text-3xl">Order Status</CardTitle>
           <CardDescription>
             Tracking for Order ID: {order.id}

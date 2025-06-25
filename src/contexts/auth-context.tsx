@@ -3,10 +3,14 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User } from 'firebase/auth';
 import { onAuthChange, signOutUser } from '@/services/authService';
+import { getUserProfile } from '@/services/userService';
+import type { UserProfile } from '@/types';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
@@ -15,22 +19,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthChange((user) => {
-      setUser(user);
+    const unsubscribe = onAuthChange(async (authUser) => {
+      setLoading(true);
+      if (authUser) {
+        setUser(authUser);
+        const profile = await getUserProfile(authUser.uid);
+        setUserProfile(profile);
+      } else {
+        setUser(null);
+        setUserProfile(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const value = {
-    user,
-    loading,
-    logout: signOutUser,
+  const logout = async () => {
+    await signOutUser();
+    router.push('/login');
   };
+
+  const value = { user, userProfile, loading, logout };
 
   if (loading) {
     return (

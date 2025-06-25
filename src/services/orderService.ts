@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import type { Order, OrderStatus } from '@/types';
+import type { Order, OrderItem, OrderStatus } from '@/types';
 import {
   collection,
   doc,
@@ -34,6 +34,8 @@ const fromFirestore = (doc: any): Order => {
     createdAt: createdAt,
     updatedAt: updatedAt,
     trackingId: data.trackingId,
+    items: data.items || [],
+    totalAmount: data.totalAmount || 0,
   };
 };
 
@@ -42,7 +44,7 @@ const fromFirestore = (doc: any): Order => {
  * @param orderData - Minimal data for a new order.
  * @returns The newly created order object.
  */
-export async function createOrder(orderData: { ownerId: string; status: 'Created' }): Promise<Order> {
+export async function createOrder(orderData: { ownerId: string; status: 'Created', items: OrderItem[], totalAmount: number }): Promise<Order> {
   if (!db) {
     throw new Error("Firestore is not initialized. Cannot create order. Check your Firebase configuration.");
   }

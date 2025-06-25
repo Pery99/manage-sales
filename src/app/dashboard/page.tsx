@@ -35,17 +35,21 @@ const groupOrdersByMonthAndDay = (orders: Order[]): Record<string, Record<string
 
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
   const router = useRouter();
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
   const [filteredState, setFilteredState] = useState<string>('all');
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
+    if (!authLoading) {
+        if (!user) {
+            router.push('/login');
+        } else if (!userProfile) {
+            router.push('/onboarding');
+        }
     }
-  }, [user, authLoading, router]);
+  }, [user, userProfile, authLoading, router]);
 
   useEffect(() => {
     if (user) {
@@ -65,7 +69,7 @@ export default function DashboardPage() {
 
   const ordersByMonthAndDay = useMemo(() => groupOrdersByMonthAndDay(filteredOrders), [filteredOrders]);
 
-  if (authLoading || isLoadingOrders) {
+  if (authLoading || isLoadingOrders || !userProfile) {
     return (
       <div className="flex items-center justify-center h-screen-minus-header">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -74,7 +78,7 @@ export default function DashboardPage() {
   }
   
   if (!user) {
-    return null; // or a redirect component
+    return null; // Should be redirected, but as a fallback.
   }
 
   return (

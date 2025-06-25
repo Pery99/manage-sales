@@ -4,13 +4,38 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createOrder, updateOrder, updateOrderStatus, bulkUpdateStatus } from '@/services/orderService';
-import type { OrderStatus } from '@/types';
+import { updateUserProfile } from '@/services/userService';
+import type { OrderStatus, OrderItem } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function createSaleAction(ownerId: string) {
+export async function updateUserProfileAction(userId: string, formData: FormData) {
+  const rawFormData = {
+    businessName: formData.get('businessName'),
+    businessPhoneNumber: formData.get('businessPhoneNumber'),
+  };
+  
+  const profileSchema = z.object({
+    businessName: z.string().min(2, 'Business name must be at least 2 characters.'),
+    businessPhoneNumber: z.string().min(10, 'Please enter a valid phone number.'),
+  });
+
+  const validationResult = profileSchema.safeParse(rawFormData);
+  if (!validationResult.success) {
+    throw new Error('Invalid profile data.');
+  }
+
+  await updateUserProfile(userId, validationResult.data);
+  revalidatePath('/dashboard');
+  redirect('/dashboard');
+}
+
+export async function createSaleAction(payload: { ownerId: string, items: OrderItem[], totalAmount: number }) {
+  const { ownerId, items, totalAmount } = payload;
   const newOrder = await createOrder({
     ownerId,
     status: 'Created',
+    items,
+    totalAmount,
   });
 
   revalidatePath('/dashboard');

@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/auth-context';
 
 export default function Header() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, userProfile, logout } = useAuth();
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -17,7 +17,6 @@ export default function Header() {
 
   const handleLogout = async () => {
     await logout();
-    // Redirect handled by AuthProvider/page protection
   };
 
   return (
@@ -42,7 +41,7 @@ export default function Header() {
         <div className="flex items-center justify-end space-x-4 flex-1">
           {user ? (
             <>
-              <span className="text-sm text-muted-foreground hidden sm:inline">Welcome, {user.displayName || user.email}</span>
+              <span className="text-sm text-muted-foreground hidden sm:inline">Welcome, {userProfile?.businessName || user.displayName || user.email}</span>
               <Button variant="outline" onClick={handleLogout}>
                 Logout
               </Button>
