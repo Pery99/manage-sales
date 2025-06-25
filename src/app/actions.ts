@@ -8,7 +8,7 @@ import { updateUserProfile } from '@/services/userService';
 import type { OrderStatus, OrderItem } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function updateUserProfileAction(userId: string, data: { businessName: string; businessPhoneNumber: string; }) {
+export async function updateUserProfileAction(userId: string, data: { businessName: string; businessPhoneNumber: string; }): Promise<{ success: boolean; error?: string }> {
   const rawFormData = data;
   
   const profileSchema = z.object({
@@ -18,12 +18,17 @@ export async function updateUserProfileAction(userId: string, data: { businessNa
 
   const validationResult = profileSchema.safeParse(rawFormData);
   if (!validationResult.success) {
-    throw new Error('Invalid profile data.');
+    return { success: false, error: 'Invalid profile data. Please check your entries.' };
   }
 
-  await updateUserProfile(userId, validationResult.data);
-  revalidatePath('/dashboard');
-  redirect('/dashboard');
+  try {
+    await updateUserProfile(userId, validationResult.data);
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error("Error in updateUserProfileAction:", error);
+    return { success: false, error: 'An unexpected error occurred while updating your profile.' };
+  }
 }
 
 export async function createSaleAction(payload: { ownerId: string, items: OrderItem[], totalAmount: number }) {
