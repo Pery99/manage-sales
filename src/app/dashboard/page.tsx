@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-react';
 import MonthlyOrderAccordion from '@/components/dashboard/monthly-order-accordion';
 import CreateSaleButton from '@/components/dashboard/create-sale-button';
 
-const groupOrdersByMonth = (orders: Order[]): Record<string, Order[]> => {
+const groupOrdersByMonthAndDay = (orders: Order[]): Record<string, Record<string, Order[]>> => {
   // Sort orders by date descending before grouping
   const sortedOrders = [...orders].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -19,13 +19,18 @@ const groupOrdersByMonth = (orders: Order[]): Record<string, Order[]> => {
 
   return sortedOrders.reduce((acc, order) => {
     const month = format(new Date(order.createdAt), 'MMMM yyyy');
+    const day = format(new Date(order.createdAt), 'MMMM d, yyyy');
     if (!acc[month]) {
-      acc[month] = [];
+      acc[month] = {};
     }
-    acc[month].push(order);
+    if (!acc[month][day]) {
+      acc[month][day] = [];
+    }
+    acc[month][day].push(order);
     return acc;
-  }, {} as Record<string, Order[]>);
+  }, {} as Record<string, Record<string, Order[]>>);
 };
+
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -48,7 +53,7 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  const ordersByMonth = useMemo(() => groupOrdersByMonth(orders), [orders]);
+  const ordersByMonthAndDay = useMemo(() => groupOrdersByMonthAndDay(orders), [orders]);
 
   if (authLoading || isLoadingOrders) {
     return (
@@ -69,7 +74,7 @@ export default function DashboardPage() {
         <CreateSaleButton />
       </div>
       {orders.length > 0 ? (
-        <MonthlyOrderAccordion ordersByMonth={ordersByMonth} />
+        <MonthlyOrderAccordion ordersByMonthAndDay={ordersByMonthAndDay} />
       ) : (
         <div className="text-center py-20 border rounded-lg bg-card">
           <h2 className="text-xl font-semibold">No orders yet!</h2>

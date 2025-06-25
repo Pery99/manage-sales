@@ -7,24 +7,27 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import OrderTable from '@/components/dashboard/order-table';
+import DailyOrderAccordion from './daily-order-accordion';
+
 
 interface MonthlyOrderAccordionProps {
-  ordersByMonth: Record<string, Order[]>;
+  ordersByMonthAndDay: Record<string, Record<string, Order[]>>;
 }
 
-export default function MonthlyOrderAccordion({ ordersByMonth }: MonthlyOrderAccordionProps) {
-  const monthKeys = Object.keys(ordersByMonth);
+export default function MonthlyOrderAccordion({ ordersByMonthAndDay }: MonthlyOrderAccordionProps) {
+  const monthKeys = Object.keys(ordersByMonthAndDay);
+  const totalOrdersInMonth = (month: string) => 
+    Object.values(ordersByMonthAndDay[month]).reduce((sum, orders) => sum + orders.length, 0);
 
   return (
     <Accordion type="single" collapsible defaultValue={monthKeys[0]} className="w-full">
       {monthKeys.map((month) => (
         <AccordionItem value={month} key={month}>
-          <AccordionTrigger className="text-lg font-headline hover:no-underline">
-            {month} ({ordersByMonth[month].length} orders)
+          <AccordionTrigger className="text-xl font-headline hover:no-underline py-6">
+            {month} ({totalOrdersInMonth(month)} orders)
           </AccordionTrigger>
           <AccordionContent>
-            <OrderTable data={ordersByMonth[month]} />
+            <DailyOrderAccordion ordersByDay={ordersByMonthAndDay[month]} />
           </AccordionContent>
         </AccordionItem>
       ))}

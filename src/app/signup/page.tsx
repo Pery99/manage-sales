@@ -1,9 +1,6 @@
-import AuthForm from '@/components/auth-form';
+import { redirect } from 'next/navigation';
 
 export default function SignupPage() {
-  return (
-    <div className="flex items-center justify-center min-h-screen-minus-header py-12">
-      <AuthForm />
-    </div>
-  );
+  redirect('/login');
+  return null;
 }

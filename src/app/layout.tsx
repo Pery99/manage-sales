@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
-import Header from '@/components/header';
 import { AuthProvider } from '@/contexts/auth-context';
+import AppShell from '@/components/app-shell';
 
 export const metadata: Metadata = {
   title: 'LinkSale',
@@ -31,8 +31,7 @@ export default function RootLayout({
         )}
       >
         <AuthProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
+            <AppShell>{children}</AppShell>
         </AuthProvider>
       </body>
     </html>

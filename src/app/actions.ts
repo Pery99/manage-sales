@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { createOrder, updateOrder, getOrder, updateOrderStatus } from '@/services/orderService';
+import { createOrder, updateOrder, updateOrderStatus, bulkUpdateStatus } from '@/services/orderService';
 import type { OrderStatus } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -50,6 +50,12 @@ export async function updateOrderStatusAction(orderId: string, status: OrderStat
     await updateOrderStatus(orderId, status);
     revalidatePath('/dashboard');
     return { success: true, message: `Order status updated to ${status}` };
+}
+
+export async function bulkUpdateOrderStatusAction(orderIds: string[], status: OrderStatus) {
+    await bulkUpdateStatus(orderIds, status);
+    revalidatePath('/dashboard');
+    return { success: true, message: `Updated ${orderIds.length} orders to ${status}` };
 }
 
 export async function cancelOrderAction(orderId: string) {

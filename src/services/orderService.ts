@@ -11,7 +11,8 @@ import {
   where,
   limit,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch
 } from 'firebase/firestore';
 
 // Helper to convert Firestore data to our Order type
@@ -85,6 +86,28 @@ export async function updateOrder(orderId: string, dataToUpdate: Partial<Omit<Or
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order> {
   return updateOrder(orderId, { status });
 }
+
+
+/**
+ * Updates the status for multiple orders in a single batch.
+ * @param orderIds - An array of order IDs to update.
+ * @param status - The new status to set for all orders.
+ */
+export async function bulkUpdateStatus(orderIds: string[], status: OrderStatus): Promise<void> {
+    if (!db) {
+        throw new Error("Firestore is not initialized. Cannot perform bulk update.");
+    }
+    const batch = writeBatch(db);
+    const now = serverTimestamp();
+
+    orderIds.forEach(orderId => {
+        const orderRef = doc(db, 'orders', orderId);
+        batch.update(orderRef, { status, updatedAt: now });
+    });
+
+    await batch.commit();
+}
+
 
 /**
  * Fetches a single order by its ID.

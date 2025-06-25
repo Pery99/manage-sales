@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/auth-context';
 
 export default function Header() {
   const pathname = usePathname();
-  const { user, loading, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -17,7 +17,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await logout();
-    // No need to redirect here, the auth state change will handle it
+    // Redirect handled by AuthProvider/page protection
   };
 
   return (
@@ -40,25 +40,14 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center justify-end space-x-4 flex-1">
-          {loading ? (
-             <div className="w-24 h-8 bg-muted rounded-md animate-pulse"></div>
-          ) : user ? (
+          {user ? (
             <>
               <span className="text-sm text-muted-foreground hidden sm:inline">Welcome, {user.displayName || user.email}</span>
-              <Button variant="outline" onClick={handleLogout} asChild>
-                <Link href="/">Logout</Link>
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
               </Button>
             </>
-          ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/signup">Sign Up</Link>
-              </Button>
-            </>
-          )}
+          ) : null}
         </div>
       </div>
     </header>
