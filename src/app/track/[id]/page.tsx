@@ -1,5 +1,5 @@
 import OrderTracker from '@/components/order-tracker';
-import { mockOrders } from '@/lib/data';
+import { getOrderByTrackingId } from '@/services/orderService';
 import {
   Card,
   CardContent,
@@ -23,9 +23,8 @@ function SuccessMessage() {
     )
 }
 
-export default function TrackPage({ params, searchParams }: { params: { id: string }, searchParams: { new?: string } }) {
-  // In a real app, this would be a database call
-  const order = mockOrders.find((o) => o.trackingId === params.id);
+export default async function TrackPage({ params, searchParams }: { params: { id: string }, searchParams: { new?: string } }) {
+  const order = await getOrderByTrackingId(params.id);
   const isNew = searchParams.new === 'true';
 
   if (!order) {

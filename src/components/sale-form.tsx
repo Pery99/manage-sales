@@ -1,55 +1,113 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useTransition } from 'react';
+import { submitOrderAction } from '@/app/actions';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+
+const saleFormSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+  address: z.string().min(10, { message: 'Please enter a valid address.' }),
+});
+
+type SaleFormValues = z.infer<typeof saleFormSchema>;
 
 interface SaleFormProps {
   orderId: string;
 }
 
 export default function SaleForm({ orderId }: SaleFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      // In a real app, you'd get the real tracking ID from the backend.
-      const mockTrackingId = 'track_1a2b3c';
-      router.push(`/track/${mockTrackingId}?new=true`);
-    }, 1500);
+  const form = useForm<SaleFormValues>({
+    resolver: zodResolver(saleFormSchema),
+    defaultValues: {
+      name: '',
+      phone: '',
+      address: '',
+    },
+  });
+
+  const onSubmit = (values: SaleFormValues) => {
+    const formData = new FormData();
+    formData.append('name', values.name);
+    formData.append('phone', values.phone);
+    formData.append('address', values.address);
+    // In a real app with file storage, you would also append the file.
+
+    startTransition(() => {
+      submitOrderAction(orderId, formData);
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-6">
-      <div className="grid gap-2">
-        <Label htmlFor="name">Full Name</Label>
-        <Input id="name" placeholder="John Doe" required />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="phone">Phone Number</Label>
-        <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" required />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="address">Delivery Address</Label>
-        <Textarea id="address" placeholder="123 Main St, Anytown, USA 12345" required />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="receipt">Proof of Payment</Label>
-        <Input id="receipt" type="file" required />
-        <p className="text-sm text-muted-foreground">
-          Please upload a screenshot or photo of your payment receipt.
-        </p>
-      </div>
-      <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? 'Submitting...' : 'Submit Order'}
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Delivery Address</FormLabel>
+              <FormControl>
+                <Textarea placeholder="123 Main St, Anytown, USA 12345" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="grid gap-2">
+            <FormLabel htmlFor="receipt">Proof of Payment</FormLabel>
+            <Input id="receipt" type="file" />
+            <p className="text-sm text-muted-foreground">
+              Please upload a screenshot or photo of your payment receipt. (Note: File uploads are not yet functional in this prototype).
+            </p>
+        </div>
+        <Button type="submit" disabled={isPending} className="w-full">
+          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {isPending ? 'Submitting...' : 'Submit Order'}
+        </Button>
+      </form>
+    </Form>
   );
 }

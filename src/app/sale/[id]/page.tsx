@@ -1,14 +1,12 @@
-import { mockOrders } from '@/lib/data';
 import SaleForm from '@/components/sale-form';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from 'lucide-react';
+import { getOrder } from '@/services/orderService';
 
 
-export default function SalePage({ params }: { params: { id: string } }) {
-  // In a real app, this would be a database call.
-  // We check for order by `id` here, which is the last part of saleLink
-  const order = mockOrders.find((o) => o.id === params.id);
+export default async function SalePage({ params }: { params: { id: string } }) {
+  const order = await getOrder(params.id);
 
   if (!order || order.status !== 'Created') {
     return (
