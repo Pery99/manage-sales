@@ -1,5 +1,5 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -12,8 +12,22 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
+// Check if Firebase config is provided to prevent crashes on startup
+const isFirebaseConfigured = firebaseConfig.projectId && firebaseConfig.apiKey;
+
+let app: FirebaseApp | undefined;
+let db: Firestore | undefined;
+
+if (isFirebaseConfigured) {
+    try {
+        app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        db = getFirestore(app);
+    } catch(e) {
+        console.error("Failed to initialize Firebase. Please check your .env.local file and Firebase project configuration.", e)
+    }
+} else {
+    console.warn("Firebase configuration is missing in .env.local. The app will run without database functionality.");
+}
+
 
 export { app, db };

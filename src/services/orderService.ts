@@ -17,6 +17,10 @@ import {
 // Helper to convert Firestore data to our Order type
 const fromFirestore = (doc: any): Order => {
   const data = doc.data();
+  // Fallback to current date if timestamp is missing to prevent crashes
+  const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date().toISOString();
+  const updatedAt = data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : new Date().toISOString();
+
   return {
     id: doc.id,
     ownerId: data.ownerId,
@@ -25,8 +29,8 @@ const fromFirestore = (doc: any): Order => {
     deliveryAddress: data.deliveryAddress,
     paymentReceiptUrl: data.paymentReceiptUrl,
     status: data.status,
-    createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
-    updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
+    createdAt: createdAt,
+    updatedAt: updatedAt,
     trackingId: data.trackingId,
   };
 };
@@ -37,6 +41,9 @@ const fromFirestore = (doc: any): Order => {
  * @returns The newly created order object.
  */
 export async function createOrder(orderData: { ownerId: string; status: 'Created' }): Promise<Order> {
+  if (!db) {
+    throw new Error("Firestore is not initialized. Cannot create order. Check your Firebase configuration.");
+  }
   const now = serverTimestamp();
   const newOrderData = {
     ...orderData,
@@ -56,6 +63,9 @@ export async function createOrder(orderData: { ownerId: string; status: 'Created
  * @returns The updated order object.
  */
 export async function updateOrder(orderId: string, dataToUpdate: Partial<Omit<Order, 'id' | 'createdAt'>>): Promise<Order> {
+  if (!db) {
+    throw new Error("Firestore is not initialized. Cannot update order. Check your Firebase configuration.");
+  }
   const orderRef = doc(db, 'orders', orderId);
   await updateDoc(orderRef, {
       ...dataToUpdate,
@@ -82,6 +92,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus): P
  * @returns The order object or null if not found.
  */
 export async function getOrder(orderId: string): Promise<Order | null> {
+  if (!db) {
+    return null;
+  }
   const docRef = doc(db, 'orders', orderId);
   const docSnap = await getDoc(docRef);
 
@@ -98,6 +111,9 @@ export async function getOrder(orderId: string): Promise<Order | null> {
  * @returns An array of orders.
  */
 export async function getOrdersByOwner(ownerId: string): Promise<Order[]> {
+  if (!db) {
+    return [];
+  }
   const q = query(collection(db, 'orders'), where('ownerId', '==', ownerId));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(fromFirestore);
@@ -110,6 +126,9 @@ export async function getOrdersByOwner(ownerId: string): Promise<Order[]> {
  * Note: This requires a Firestore index on the `trackingId` field.
  */
 export async function getOrderByTrackingId(trackingId: string): Promise<Order | null> {
+  if (!db) {
+    return null;
+  }
   const q = query(collection(db, 'orders'), where('trackingId', '==', trackingId), limit(1));
   const querySnapshot = await getDocs(q);
 
