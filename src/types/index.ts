@@ -6,6 +6,7 @@ export type Order = {
   customerName?: string;
   customerPhone?: string;
   deliveryAddress?: string;
+  deliveryState?: string;
   paymentReceiptUrl?: string; // URL to the uploaded receipt
   status: OrderStatus;
   createdAt: string; // ISO 8601 string date format

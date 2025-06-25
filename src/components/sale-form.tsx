@@ -17,11 +17,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { nigerianStates } from '@/lib/nigerian-states';
 
 const saleFormSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
   address: z.string().min(10, { message: 'Please enter a valid address.' }),
+  state: z.string().min(1, { message: 'Please select your state.' }),
 });
 
 type SaleFormValues = z.infer<typeof saleFormSchema>;
@@ -39,6 +42,7 @@ export default function SaleForm({ orderId }: SaleFormProps) {
       name: '',
       phone: '',
       address: '',
+      state: '',
     },
   });
 
@@ -47,7 +51,7 @@ export default function SaleForm({ orderId }: SaleFormProps) {
     formData.append('name', values.name);
     formData.append('phone', values.phone);
     formData.append('address', values.address);
-    // In a real app with file storage, you would also append the file.
+    formData.append('state', values.state);
 
     startTransition(() => {
       submitOrderAction(orderId, formData);
@@ -77,7 +81,7 @@ export default function SaleForm({ orderId }: SaleFormProps) {
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
+                <Input type="tel" placeholder="+234 (801) 234-5678" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,8 +94,30 @@ export default function SaleForm({ orderId }: SaleFormProps) {
             <FormItem>
               <FormLabel>Delivery Address</FormLabel>
               <FormControl>
-                <Textarea placeholder="123 Main St, Anytown, USA 12345" {...field} />
+                <Textarea placeholder="123 Main St, Anytown" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>State</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your state" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {nigerianStates.map(state => (
+                    <SelectItem key={state} value={state}>{state}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

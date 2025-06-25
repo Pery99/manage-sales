@@ -26,6 +26,7 @@ export default function OrderTable({ data }: OrderTableProps) {
           <TableRow>
             <TableHead>Order ID</TableHead>
             <TableHead>Customer</TableHead>
+            <TableHead>Location</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Tracking Link</TableHead>
@@ -37,9 +38,10 @@ export default function OrderTable({ data }: OrderTableProps) {
             data.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-medium">
-                   <Link href={`/sale/${order.id}`} className="hover:underline" target="_blank">{order.id.substring(0, 8)}...</Link>
+                   <Link href={`/dashboard/order/${order.id}`} className="hover:underline" target="_blank">{order.id.substring(0, 8)}...</Link>
                 </TableCell>
                 <TableCell>{order.customerName || 'N/A'}</TableCell>
+                <TableCell>{order.deliveryState || 'N/A'}</TableCell>
                 <TableCell>
                   <OrderStatusBadge status={order.status} />
                 </TableCell>
@@ -61,7 +63,7 @@ export default function OrderTable({ data }: OrderTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center">
+              <TableCell colSpan={7} className="h-24 text-center">
                 No orders found for this period.
               </TableCell>
             </TableRow>

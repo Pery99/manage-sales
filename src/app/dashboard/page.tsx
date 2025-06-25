@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/auth-context';
 import { getOrdersByOwner } from '@/services/orderService';
 import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
+import { nigerianStates } from '@/lib/nigerian-states';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import MonthlyOrderAccordion from '@/components/dashboard/monthly-order-accordion';
 import CreateSaleButton from '@/components/dashboard/create-sale-button';
@@ -35,8 +37,9 @@ const groupOrdersByMonthAndDay = (orders: Order[]): Record<string, Record<string
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+  const [filteredState, setFilteredState] = useState<string>('all');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -48,12 +51,19 @@ export default function DashboardPage() {
     if (user) {
       setIsLoadingOrders(true);
       getOrdersByOwner(user.uid)
-        .then(setOrders)
+        .then(setAllOrders)
         .finally(() => setIsLoadingOrders(false));
     }
   }, [user]);
 
-  const ordersByMonthAndDay = useMemo(() => groupOrdersByMonthAndDay(orders), [orders]);
+  const filteredOrders = useMemo(() => {
+    if (filteredState === 'all') {
+        return allOrders;
+    }
+    return allOrders.filter(order => order.deliveryState === filteredState);
+  }, [allOrders, filteredState]);
+
+  const ordersByMonthAndDay = useMemo(() => groupOrdersByMonthAndDay(filteredOrders), [filteredOrders]);
 
   if (authLoading || isLoadingOrders) {
     return (
@@ -69,17 +79,28 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <h1 className="text-3xl font-bold font-headline">Order Dashboard</h1>
-        <CreateSaleButton />
+        <div className="flex items-center gap-4">
+            <Select onValueChange={setFilteredState} defaultValue="all">
+                <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Filter by state" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All States</SelectItem>
+                    {nigerianStates.map(state => <SelectItem key={state} value={state}>{state}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            <CreateSaleButton />
+        </div>
       </div>
-      {orders.length > 0 ? (
+      {filteredOrders.length > 0 ? (
         <MonthlyOrderAccordion ordersByMonthAndDay={ordersByMonthAndDay} />
       ) : (
         <div className="text-center py-20 border rounded-lg bg-card">
-          <h2 className="text-xl font-semibold">No orders yet!</h2>
+          <h2 className="text-xl font-semibold">No orders found!</h2>
           <p className="text-muted-foreground mt-2">
-            Click 'Create Sale Link' to get started.
+            Click 'Create Sale Link' to get started or adjust your filters.
           </p>
         </div>
       )}

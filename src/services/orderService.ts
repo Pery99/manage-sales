@@ -28,6 +28,7 @@ const fromFirestore = (doc: any): Order => {
     customerName: data.customerName,
     customerPhone: data.customerPhone,
     deliveryAddress: data.deliveryAddress,
+    deliveryState: data.deliveryState,
     paymentReceiptUrl: data.paymentReceiptUrl,
     status: data.status,
     createdAt: createdAt,
@@ -116,6 +117,7 @@ export async function bulkUpdateStatus(orderIds: string[], status: OrderStatus):
  */
 export async function getOrder(orderId: string): Promise<Order | null> {
   if (!db) {
+    console.warn("Firestore not initialized, cannot get order.");
     return null;
   }
   const docRef = doc(db, 'orders', orderId);
@@ -135,6 +137,7 @@ export async function getOrder(orderId: string): Promise<Order | null> {
  */
 export async function getOrdersByOwner(ownerId: string): Promise<Order[]> {
   if (!db) {
+    console.warn("Firestore not initialized, cannot get orders.");
     return [];
   }
   const q = query(collection(db, 'orders'), where('ownerId', '==', ownerId));
@@ -150,6 +153,7 @@ export async function getOrdersByOwner(ownerId: string): Promise<Order[]> {
  */
 export async function getOrderByTrackingId(trackingId: string): Promise<Order | null> {
   if (!db) {
+    console.warn("Firestore not initialized, cannot get order by tracking ID.");
     return null;
   }
   const q = query(collection(db, 'orders'), where('trackingId', '==', trackingId), limit(1));
