@@ -43,12 +43,9 @@ export default function OnboardingPage() {
 
   const onSubmit = (values: ProfileFormValues) => {
     if (!user) return;
-    const formData = new FormData();
-    formData.append('businessName', values.businessName);
-    formData.append('businessPhoneNumber', values.businessPhoneNumber);
 
     startTransition(() => {
-        updateUserProfileAction(user.uid, formData).catch(err => {
+        updateUserProfileAction(user.uid, values).catch(err => {
             console.error(err);
             // In a real app, you would set an error state to display to the user
             alert('Failed to update profile. Please try again.');

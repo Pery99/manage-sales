@@ -8,11 +8,8 @@ import { updateUserProfile } from '@/services/userService';
 import type { OrderStatus, OrderItem } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function updateUserProfileAction(userId: string, formData: FormData) {
-  const rawFormData = {
-    businessName: formData.get('businessName'),
-    businessPhoneNumber: formData.get('businessPhoneNumber'),
-  };
+export async function updateUserProfileAction(userId: string, data: { businessName: string; businessPhoneNumber: string; }) {
+  const rawFormData = data;
   
   const profileSchema = z.object({
     businessName: z.string().min(2, 'Business name must be at least 2 characters.'),
