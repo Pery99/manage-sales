@@ -13,6 +13,7 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   loading: boolean;
   logout: () => Promise<void>;
+  refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +23,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const refreshUserProfile = async () => {
+    if (user) {
+        const profile = await getUserProfile(user.uid);
+        setUserProfile(profile);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthChange(async (authUser) => {
@@ -45,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
-  const value = { user, userProfile, loading, logout };
+  const value = { user, userProfile, loading, logout, refreshUserProfile };
 
   if (loading) {
     return (
