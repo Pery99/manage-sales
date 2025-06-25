@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import OrderStatusBadge from '@/components/order-status-badge';
 import Link from 'next/link';
+import { ShoppingCart } from 'lucide-react';
 
 function DetailRow({ label, value }: { label: string; value: string | React.ReactNode }) {
     if (!value) return null;
@@ -13,6 +14,14 @@ function DetailRow({ label, value }: { label: string; value: string | React.Reac
             <dd className="mt-1 text-sm text-foreground col-span-2 sm:mt-0">{value}</dd>
         </div>
     )
+}
+
+const formatCurrency = (amount: number) => {
+    // Fallback for environments where Intl might not be fully supported, or for amount being null/undefined.
+    if (typeof amount !== 'number') {
+        amount = 0;
+    }
+    return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
 }
 
 export default async function OrderDetailsPage({ params }: { params: { id: string } }) {
@@ -62,7 +71,31 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
                     />
                 )}
             </dl>
+            
+            {order.items && order.items.length > 0 && (
+                <>
+                    <Separator className="my-4" />
+                    <div className="mt-6">
+                        <h3 className="text-lg font-semibold flex items-center gap-2 mb-2"><ShoppingCart className="h-5 w-5" />Order Summary</h3>
+                        <div className="border rounded-lg p-4 bg-muted/50 space-y-2">
+                            {order.items.map((item, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                    <span>{item.name}</span>
+                                    <span className="font-medium">{formatCurrency(item.price)}</span>
+                                </div>
+                            ))}
+                            <Separator className="my-2" />
+                            <div className="flex justify-between font-bold text-base">
+                                <span>Total</span>
+                                <span>{formatCurrency(order.totalAmount || 0)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
             <Separator className="my-4" />
+
              <div className="mt-6">
                 <h3 className="text-lg font-medium">Payment Receipt</h3>
                 <div className="mt-2 flex items-center justify-center border-2 border-dashed rounded-lg p-12 text-center bg-muted/50">
